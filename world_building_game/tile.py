@@ -1,3 +1,4 @@
+import pygame
 import math
 import random
 from settings import *
@@ -13,6 +14,7 @@ class Tile():
         self.tile_color = None
         self.noise_value = None
         self.climate = None
+        self.group = pygame.sprite.Group()
 
     def create_hex(self):
         vert_one = (self.center_x + HEX_SIZE * math.cos(math.pi/2), self.center_y + HEX_SIZE * math.sin(math.pi/2))
@@ -39,9 +41,12 @@ class Tile():
             if self.noise_value >= ocean:
                 self.noise_value = ice
             elif r_number != 4:
-                self.noise_value = 1
+                self.noise_value = ice
         elif self.row_index == 2 or self.row_index == ROWS - 3:
+            r_number = random.randint(1, 2)
             if self.noise_value >= plain:
+                self.noise_value = ice
+            elif r_number == 1:
                 self.noise_value = ice
         elif self.col_index == 0 or self.col_index == COLS - 1:
             self.noise_value = ocean - 1
@@ -77,6 +82,9 @@ class Tile():
             self.tile_type = "deep_ocean"
             self.climate = "ocean"
             self.tile_color = DEEP_WATER
+    
+    def set_group(self, group):
+        self.group = group
     
     def set_climate(self):
         pass

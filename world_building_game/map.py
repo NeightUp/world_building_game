@@ -8,13 +8,13 @@ from perlin_noise import PerlinNoise
 class Map:
     def __init__(self):
         self.display_surface = pygame.display.get_surface()
-        self.map_surface = pygame.Surface((X_SPACER * COLS, Y_SPACER * ROWS))
+        self.map_surface = pygame.Surface((X_SPACER * (COLS + 0.5), Y_SPACER * (ROWS + 0.5)))
         self.map_rect = pygame.Surface.get_rect(self.map_surface)
-        self.x_offset = self.map_surface.get_width() // 2 - self.display_surface.get_width() // 2 
-        self.y_offset = self.map_surface.get_height() // 2 - self.display_surface.get_height() // 2
+        self.camera_group = pygame.sprite.Group()
+        self.active_tile = None
         self.map_data = self.generate_map()
         self.running = False
-        self.grid_check = False
+        self.grid_check = True
         self.previous_tile = None
 
     def generate_map(self):
@@ -36,6 +36,7 @@ class Map:
                 noise_val += 0.25 * noise3([i/ROWS, j/COLS])
                 noise_val += 0.125 * noise4([i/ROWS, j/COLS])
                 new_tile.set_tile_type_color_noise(noise_val)
+                new_tile.set_group(self.camera_group)
                 row.append(new_tile)
                 x_pos += X_SPACER
             data.append(row)
@@ -101,4 +102,4 @@ class Map:
                         else:
                             self.draw_hexagon(self.previous_tile.vertices, self.previous_tile.tile_color, fill)
                     self.previous_tile = current_tile
-        self.display_surface.blit(self.map_surface, (0, 0))
+        self.display_surface.blit(self.map_surface, self.map_rect)
