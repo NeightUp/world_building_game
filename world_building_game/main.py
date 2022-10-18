@@ -6,7 +6,7 @@ class Game:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
-        pygame.display.set_caption("Civ Like Game")
+        pygame.display.set_caption("World Map Generator")
         self.clock = pygame.time.Clock()
         self.map = Map()
         self.screen.fill(BLACK)
