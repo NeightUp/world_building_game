@@ -20,21 +20,23 @@ class Map:
     def generate_map(self):
         x_pos = X_SCALE
         y_pos = HEX_SIZE
-        noise1 = PerlinNoise(octaves=3)
+        noise1 = PerlinNoise(octaves=4)
         noise2 = PerlinNoise(octaves=6)
         noise3 = PerlinNoise(octaves=12)
-        noise4 = PerlinNoise(octaves=24)
+        #noise4 = PerlinNoise(octaves=24)
+        #noise5 = PerlinNoise(octaves=48)
         data = []
         for i in range(ROWS):
             row = []
             if (i % 2 != 0):
                 x_pos += X_SCALE
             for j in range(COLS): 
-                new_tile = Tile((i, j), (x_pos, y_pos))
+                new_tile = Tile((i, j), (x_pos, y_pos), self.camera_group)
                 noise_val = noise1([i/ROWS, j/COLS])
-                noise_val += 0.5 * noise2([i/ROWS, j/COLS])
+                noise_val += 0.7 * noise2([i/ROWS, j/COLS])
                 noise_val += 0.25 * noise3([i/ROWS, j/COLS])
-                noise_val += 0.125 * noise4([i/ROWS, j/COLS])
+                #noise_val += 0.125 * noise4([i/ROWS, j/COLS])
+                #noise_val += 0.0625 * noise5([i/ROWS, j/COLS])
                 new_tile.set_tile_type_color_noise(noise_val)
                 new_tile.set_group(self.camera_group)
                 row.append(new_tile)
@@ -71,8 +73,13 @@ class Map:
 
     def draw_map(self):
         for i in range(ROWS):
-            for j in range(COLS):
-                current_tile = self.map_data[i][j]
+            for j in range(COLS + 2):
+                if j == 0:
+                    current_tile = self.map_data[i][COLS - 1]
+                elif j == COLS + 1:
+                    current_tile = self.map_data[i][0]
+                else:
+                    current_tile = self.map_data[i][j - 1]
                 fill = True
                 color = current_tile.tile_color
                 self.draw_hexagon(current_tile.vertices, color, fill)

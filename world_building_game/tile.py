@@ -3,18 +3,19 @@ import math
 import random
 from settings import *
 
-class Tile():
-    def __init__(self, index, pos):
+class Tile(pygame.sprite.Sprite):
+    def __init__(self, index, pos, group):
+        super().__init__(group)
         self.row_index = index[0]
         self.col_index = index[1]
         self.center_x = pos[0]
         self.center_y = pos[1]
+        self.tile_rect = pygame.Rect((self.center_x - X_SCALE, self.center_y - HEX_SIZE), (X_SCALE * 2, HEX_SIZE * 2))
         self.vertices = self.create_hex()
         self.tile_type = None
         self.tile_color = None
         self.noise_value = None
         self.climate = None
-        self.group = pygame.sprite.Group()
 
     def create_hex(self):
         vert_one = (self.center_x + HEX_SIZE * math.cos(math.pi/2), self.center_y + HEX_SIZE * math.sin(math.pi/2))
@@ -29,10 +30,10 @@ class Tile():
     def set_tile_type_color_noise(self, noise_val):
         self.noise_value = noise_val
         ice = 1
-        h_mountain = 0.5
-        mountain = 0.45
-        hill = 0.2
-        plain = 0.05
+        h_mountain = 0.55
+        mountain = 0.35
+        hill = 0.15
+        plain = 0.01
         ocean = -0.05
         if self.row_index == 0 or self.row_index == ROWS - 1:
             self.noise_value = ice
@@ -43,16 +44,22 @@ class Tile():
             elif r_number != 4:
                 self.noise_value = ice
         elif self.row_index == 2 or self.row_index == ROWS - 3:
-            r_number = random.randint(1, 2)
+            r_number = random.randint(1, 3)
+            if r_number != 3:
+                self.noise_value = ice
+            
+        elif self.col_index <= 0 or self.col_index >= COLS - 1:
             if self.noise_value >= plain:
-                self.noise_value = ice
-            elif r_number == 1:
-                self.noise_value = ice
-        elif self.col_index == 0 or self.col_index == COLS - 1:
-            self.noise_value = ocean - 1
-        elif self.col_index == 1 or self.col_index == COLS -2:
-            if self.noise_value >= ocean:
-                self.noise_value = ocean
+                self.noise_value -= 0.5
+        elif self.col_index <= 1 or self.col_index >= COLS - 2:
+            if self.noise_value >= plain:
+                self.noise_value -= 0.25
+        elif self.col_index <= 3 or self.col_index >= COLS -4:
+            if self.noise_value >= plain:
+                self.noise_value -= 0.15
+        elif self.col_index <= 5 or self.col_index >= COLS -6:
+            if self.noise_value >= plain:
+                self.noise_value -= 0.1
 
         if self.noise_value == ice:
             self.tile_type = "ice"
