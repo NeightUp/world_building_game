@@ -7,4 +7,7 @@ Requires the pygame, and perlin_noise libraries to run.
 When you run the code, it will create an image file called map.png.  
 This will be created every time a new map is generated.  
 If one already exists, it will overwrite the previous version with the new version.
-It is so you can look at the map as an image without needing to scroll around the map while the code is running.  
+It is so you can look at the map as an image due to no controls having been implemented at the time of upload.
+I have found it handy to have, so you can run and close the program, then check the image to see the full output.
+useful for quickly dialing in changes to how the map is generated, or how the terrain is assigned.
+  
