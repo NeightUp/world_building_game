@@ -4,6 +4,7 @@
 A program to build a procedurally generated, hex based game map in python with pygame.  
 Requires the pygame, and perlin_noise libraries to run.
 
+***This currently only saves what is initially drawn to the screen***
 When you run the code, it will create an image file called map.png.  
 This will be created every time a new map is generated.  
 If one already exists, it will overwrite the previous version with the new version.
