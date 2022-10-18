@@ -8,6 +8,8 @@ from perlin_noise import PerlinNoise
 class Map:
     def __init__(self):
         self.display_surface = pygame.display.get_surface()
+        self.map_surface = pygame.Surface((X_SPACER * (COLS + 0.5), Y_SPACER * (ROWS + 0.5)))
+        self.map_rect = self.map_surface.get_rect()
         self.map_data = self.generate_map()
         self.running = False
         self.grid_check = True
@@ -51,10 +53,10 @@ class Map:
         vert_six = current_tile[6]
     
         if fill:
-            pygame.draw.polygon(self.display_surface, color, [vert_one, vert_two, 
+            pygame.draw.polygon(self.map_surface, color, [vert_one, vert_two, 
                                 vert_three, vert_four, vert_five, vert_six])
         else:
-            pygame.draw.polygon(self.display_surface, color, [vert_one, vert_two, 
+            pygame.draw.polygon(self.map_surface, color, [vert_one, vert_two, 
                                 vert_three, vert_four, vert_five, vert_six], width=2)
 
     def check_mouse(self, pos):
@@ -80,7 +82,7 @@ class Map:
     def run(self):
         if not self.running:
             self.draw_map()
-            pygame.image.save_extended(self.display_surface, "map.png")
+            pygame.image.save_extended(self.map_surface, "map.png")
             self.running = True
         for row in self.map_data:
             for tile in row:
@@ -97,3 +99,4 @@ class Map:
                         else:
                             self.draw_hexagon(self.previous_tile.vertices, self.previous_tile.tile_color, fill)
                     self.previous_tile = tile
+        self.display_surface.blit(self.map_surface, self.map_rect)
