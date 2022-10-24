@@ -9,8 +9,6 @@ class Game:
         pygame.display.set_caption("World Map Generator")
         self.clock = pygame.time.Clock()
         self.map = Map()
-        self.screen.fill(BLACK)
-        
 
     def run(self):
         while True:
@@ -18,11 +16,9 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                if event.type == pygame.VIDEORESIZE:
-                    self.map.running = False
 
             self.map.run()
-            pygame.display.update()
+            pygame.display.flip()
             self.clock.tick(FPS)
 
 if __name__ == '__main__':

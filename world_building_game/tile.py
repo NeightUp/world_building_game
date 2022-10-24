@@ -1,74 +1,127 @@
 import pygame
-import math
 import random
 from settings import *
 
-class Tile():
-    def __init__(self, index, pos):
-        super().__init__()
-        self.row_index = index[0]
+class Tile(pygame.sprite.Sprite):                    
+    def __init__(self, index, noise, group):
+        super().__init__(group)
+        self.row_index = index[0]                  # tile index at the time it was created
         self.col_index = index[1]
-        self.center_x = pos[0]
-        self.center_y = pos[1]
-        self.vertices = self.create_hex()
-        self.tile_type = None
-        self.tile_color = None
+        self.noise = noise                         # original noise value from map generation
+        self.adj_noise, self.tile_type = self.set_tile_type()  # values to store adjusted noise and tile type
+        self.tile_image = self.get_image()         # calls function to determine tile image from tile type
+        self.tile_image_width = self.tile_image.get_width()    # get tile width
+        self.tile_image_height = self.tile_image.get_height()  # get tile height
+        self.tile_pos = self.get_xy()              # get tile position on the map
+        self.tile_image_rect = self.tile_image.get_rect(topleft = self.tile_pos)  # create rect of image
 
-    def create_hex(self):
-        vert_one = (self.center_x + HEX_SIZE * math.cos(math.pi/2), self.center_y + HEX_SIZE * math.sin(math.pi/2))
-        vert_two = (self.center_x + HEX_SIZE * math.cos(math.pi/6), self.center_y + HEX_SIZE * math.sin(math.pi/6))
-        vert_three = (self.center_x + HEX_SIZE * math.cos(11 * math.pi/6), self.center_y + HEX_SIZE * math.sin(11 * math.pi/6))
-        vert_four = (self.center_x + HEX_SIZE * math.cos(3 * math.pi/2), self.center_y + HEX_SIZE * math.sin(3 * math.pi/2))
-        vert_five = (self.center_x + HEX_SIZE * math.cos(7 * math.pi/6), self.center_y + HEX_SIZE * math.sin(7 * math.pi/6))
-        vert_six = (self.center_x + HEX_SIZE * math.cos(5 * math.pi/6), self.center_y + HEX_SIZE * math.sin(5 * math.pi/6))
-        pos_data = [(self.center_x, self.center_y), vert_one, vert_two, vert_three, vert_four, vert_five, vert_six]
-        return pos_data
-
-    def set_tile_type_color(self, noise_val):
-        if self.row_index == 0 or self.row_index == ROWS - 1:
-            noise_val = ICE
-        elif self.row_index == 1 or self.row_index == ROWS - 2:
-            r_number = random.randint(1, 4)
-            if noise_val >= OCEAN:
-                noise_val = ICE
-            elif r_number != 4:
-                noise_val = ICE
-        elif self.row_index == 2 or self.row_index == ROWS - 3:
-            r_number = random.randint(1, 3)
-            if r_number != 3:
-                noise_val = ICE
-            
-        elif self.col_index <= 0 or self.col_index >= COLS - 1:
-            if noise_val >= PLAINS:
-                noise_val -= 0.5
+    def set_tile_type(self): 
+        # uses the column and row index values along with the nosie value to 
+        # pre-shape the map edges
+        value = 0
+        type = ""
+        # nudge the edge columns towards being ocean tiles.
+        if self.col_index == 0 or self.col_index == COLS - 1:
+            if self.noise >= OCEAN:
+                self.noise -= 0.4
         elif self.col_index <= 1 or self.col_index >= COLS - 2:
-            if noise_val >= PLAINS:
-                noise_val -= 0.25
-        elif self.col_index <= 3 or self.col_index >= COLS -4:
-            if noise_val >= PLAINS:
-                noise_val -= 0.15
-        elif self.col_index <= 5 or self.col_index >= COLS -6:
-            if noise_val >= PLAINS:
-                noise_val -= 0.1
-
-        if noise_val == ICE:
-            self.tile_type = "ice"
-            self.tile_color = WHITE
-        elif noise_val >= H_MOUNTAIN:
-            self.tile_type = "high_mountain"
-            self.tile_color = HIGH_MOUNTAIN_COLOR
-        elif noise_val >= MOUNTAIN:
-            self.tile_type = "mountain"
-            self.tile_color = HILLS_COLOR
-        elif noise_val >= HILLS:
-            self.tile_type = "hills"
-            self.tile_color = FOREST_COLOR
-        elif noise_val >= PLAINS:
-            self.tile_type = "plains"
-            self.tile_color = PLAINS_COLOR
-        elif noise_val >= OCEAN:
-            self.tile_type = "ocean"
-            self.tile_color = WATER_COLOR
+            if self.noise >= OCEAN:
+                self.noise -= 0.2
+        elif self.col_index <= 2 or self.col_index >= COLS - 3:
+            if self.noise >= PLAINS:
+                self.noise -= 0.1
+        elif self.col_index <= 3 or self.col_index >= COLS - 4:
+            if self.noise >= PLAINS:
+                self.noise -= 0.05
+        elif self.col_index <= 4 or self.col_index >= COLS - 5:
+            if self.noise >= PLAINS:
+                self.noise -= 0.05
+        elif self.col_index <= 5 or self.col_index >= COLS - 6:
+            if self.noise >= PLAINS:
+                self.noise -= 0.05
+        # set the border rows to ice and tundra to create "arctic circles" at the poles
+        if self.row_index == 0 or self.row_index == ROWS - 1:
+            value = ICE
+        elif self.row_index == 1 or self.row_index == ROWS - 2:
+            if random.randint(1, 5) != 5:
+                value = ICE
+            elif self.noise >= PLAINS:
+                    value = TUNDRA
+            else:
+                value = self.noise
+        elif self.row_index == 2 or self.row_index == ROWS - 3:
+            if random.randint(1, 4) != 4:
+                value = ICE
+            elif self.noise >= PLAINS:
+                value = TUNDRA
+            else:
+                value = self.noise
+        elif self.row_index == 3 or self.row_index == ROWS - 4:
+            if self.noise >= PLAINS:
+                value = TUNDRA
+            else:
+                value = self.noise
+        elif self.row_index == 4 or self.row_index == ROWS - 5:
+            if self.noise >= PLAINS:
+                if random.randint(1, 5) != 5:
+                    value = TUNDRA
+                else:
+                    value = self.noise
+            else:
+                value = self.noise
+        elif self.row_index == 5 or self.row_index == ROWS -6:
+            if self.noise >= PLAINS:
+                if random.randint(1, 2) == 2:
+                    value = TUNDRA
+                else:
+                    value = self.noise
+            else:
+                value = self.noise
         else:
-            self.tile_type = "deep_ocean"
-            self.tile_color = DEEP_WATER_COLOR
+            value = self.noise
+        # uses the noise values set above to set the tile type
+        if value == ICE:
+            type = "ice"
+        elif value == TUNDRA:
+            type = "tundra"
+        elif value >= H_MOUNTAIN:
+            type = "high_mountain"
+        elif value >= MOUNTAIN:
+            type = "mountain"
+        elif value >= HILLS:
+            type = "hills"
+        elif value >= PLAINS:
+            type = "plains"
+        elif value >= OCEAN:
+            type = "ocean"
+        else:
+            type = "deep_ocean"
+        return value, type
+
+    def get_xy(self):
+        # uses the col and row index values to determine the map x and y positions
+        x = self.col_index * self.tile_image_width
+        if self.row_index % 2 != 0:                      # on odd numbered rows
+            x += self.tile_image_width // 2              # move a half tile over to fit in with above and below tiles
+        y = self.row_index * int(self.tile_image_height * 0.75)  # move 75% of a tile down for next row
+        return(x, y)
+
+    def get_image(self):
+        # uses tile type to set the tile image to draw to the map
+        if self.tile_type == "ice":
+            image = pygame.image.load('.\\tiles\\ice.png').convert_alpha()
+        elif self.tile_type == "tundra":
+            image = pygame.image.load('.\\tiles\\tundra.png').convert_alpha()
+        elif self.tile_type == "high_mountain":
+            image = pygame.image.load('.\\tiles\\high_mountain.png').convert_alpha()
+        elif self.tile_type == "mountain":
+            image = pygame.image.load('.\\tiles\\mountans.png').convert_alpha()
+        elif self.tile_type == "hills":
+            image = pygame.image.load('.\\tiles\\hills.png').convert_alpha()
+        elif self.tile_type == "plains":
+            image = pygame.image.load('.\\tiles\\plains.png').convert_alpha()
+        elif self.tile_type == "ocean":
+            image = pygame.image.load('.\\tiles\\water.png').convert_alpha()
+        elif self.tile_type == "deep_ocean":
+            image = pygame.image.load('.\\tiles\\deep_water.png').convert_alpha()
+        return image

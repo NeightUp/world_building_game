@@ -1,18 +1,18 @@
-WIDTH = 1280
-HEIGHT = 720
+# various constants to use around the program
+# not current....
+WIDTH = 1800
+HEIGHT = 900
 FPS = 60
 HEX_SIZE = 30
-X_SCALE = HEX_SIZE * 0.875
-X_SPACER = X_SCALE * 2
-Y_SPACER = HEX_SIZE * 1.5
 ROWS = 45
 COLS = 85
 ICE = 1
-H_MOUNTAIN = 0.55
-MOUNTAIN = 0.35
-HILLS = 0.15
-PLAINS = 0.01
-OCEAN = -0.05
+TUNDRA = 2
+H_MOUNTAIN = 0.45
+MOUNTAIN = 0.3
+HILLS = 0.1
+PLAINS = -0.05
+OCEAN = -0.12
 
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
